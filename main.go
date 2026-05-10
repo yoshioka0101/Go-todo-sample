@@ -10,10 +10,20 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+
+	"github.com/yoshioka0101/go-todo-sample/internal/middleware"
 )
 
 func main() {
-	r := gin.Default()
+	// slog を JSON 形式で出力するよう初期化する
+	slog.SetDefault(slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
+		Level: slog.LevelInfo,
+	})))
+
+	// gin.Default() はテキストロガーを含むので、gin.New() で素の状態から組み立てる
+	r := gin.New()
+	r.Use(gin.Recovery())
+	r.Use(middleware.Logger()) // slog でリクエストを JSON 出力するミドルウェア
 
 	// ルーティング定義
 	r.GET("/health", func(c *gin.Context) {
